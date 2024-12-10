@@ -62,7 +62,7 @@ export const WarehouseView = ({
       {/* Header */}
       <div className="relative mb-8">
         <div className="flex justify-between items-center mb-2">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold text-blue-600">
             Almacén: {warehouse.nombre}
           </h1>
           <div className="bg-white/80 backdrop-blur-sm px-6 py-2 rounded-2xl shadow-lg">

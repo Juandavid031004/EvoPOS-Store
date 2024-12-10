@@ -86,7 +86,7 @@ export const ProductList = ({ products, sucursales, onAddProduct, onUpdateStock,
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <div className="space-y-1">
-          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient-x">
+          <h1 className="text-3xl sm:text-4xl font-black text-black">
             Productos
           </h1>
           <p className="text-gray-500 text-base sm:text-lg">

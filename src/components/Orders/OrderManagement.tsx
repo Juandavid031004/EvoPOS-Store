@@ -161,7 +161,7 @@ export const OrderManagement = ({
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold text-black">
             Gestión de Pedidos
           </h1>
           <p className="text-gray-600 text-lg">
@@ -172,7 +172,7 @@ export const OrderManagement = ({
         {currentUser.permisos.includes('gestionar_pedidos') && (
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl hover:from-blue-700 hover:to-blue-900 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl"
+            className="flex items-center space-x-2 px-6 py-2 bg-black hover:bg-gray-900 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl"
           >
             <Plus className="h-5 w-5" />
             <span>Nuevo Pedido</span>
