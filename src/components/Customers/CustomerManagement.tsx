@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Search, Gift, Users, CreditCard, Award, Wallet } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Gift, Users, CreditCard, Award, Wallet, ArrowUpDown } from 'lucide-react';
 import { Cliente } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -22,6 +22,8 @@ export const CustomerManagement = ({
   const [showRedeemForm, setShowRedeemForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Cliente | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortField, setSortField] = useState<keyof Cliente>('nombre');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [formData, setFormData] = useState({
     nombre: '',
     telefono: '',
@@ -63,10 +65,28 @@ export const CustomerManagement = ({
     toast.success('Puntos canjeados exitosamente');
   };
 
+  const handleSort = (field: keyof Cliente) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
   const filteredCustomers = customers.filter(customer =>
     customer.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ).sort((a, b) => {
+    if (typeof a[sortField] === 'number') {
+      return sortDirection === 'asc' 
+        ? (a[sortField] as number) - (b[sortField] as number)
+        : (b[sortField] as number) - (a[sortField] as number);
+    }
+    return sortDirection === 'asc'
+      ? String(a[sortField]).localeCompare(String(b[sortField]))
+      : String(b[sortField]).localeCompare(String(a[sortField]));
+  });
 
   // Calcular estadísticas
   const totalClientes = filteredCustomers.length;
@@ -201,11 +221,45 @@ export const CustomerManagement = ({
           <table className="w-full min-w-[800px]">
             <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
               <tr>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Nombre</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Contacto</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Total Gastado</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Puntos</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Acciones</th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('nombre')}
+                  >
+                    <span>Nombre</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('email')}
+                  >
+                    <span>Contacto</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('totalGastado')}
+                  >
+                    <span>Total Gastado</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('puntos')}
+                  >
+                    <span>Puntos</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-purple-100">

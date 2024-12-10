@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Search, Package, Clock, CheckCircle, DollarSign } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Package, Clock, CheckCircle, DollarSign, ArrowUpDown } from 'lucide-react';
 import { Order, Product, Supplier, Sucursal, User } from '../../types';
 import { OrderForm } from './OrderForm';
 import { OrderFilters } from './OrderFilters';
@@ -44,6 +44,8 @@ export const OrderManagement = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<Order['estado'] | ''>('');
   const [dateFilter, setDateFilter] = useState('');
+  const [sortField, setSortField] = useState<keyof Order>('fecha');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const handleSubmit = (orderData: Omit<Order, 'id' | 'createdAt'>) => {
     if (editingOrder) {
@@ -114,6 +116,15 @@ export const OrderManagement = ({
     toast.success('Pedido eliminado exitosamente');
   };
 
+  const handleSort = (field: keyof Order) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
   const filteredOrders = orders.filter(order => {
     const supplier = suppliers.find(s => s.id === order.proveedorId);
     const matchesSearch = supplier?.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -122,6 +133,15 @@ export const OrderManagement = ({
     const matchesDate = !dateFilter || format(new Date(order.fecha), 'yyyy-MM') === dateFilter;
     
     return matchesSearch && matchesStatus && matchesDate;
+  }).sort((a, b) => {
+    if (typeof a[sortField] === 'number') {
+      return sortDirection === 'asc' 
+        ? (a[sortField] as number) - (b[sortField] as number)
+        : (b[sortField] as number) - (a[sortField] as number);
+    }
+    return sortDirection === 'asc'
+      ? String(a[sortField]).localeCompare(String(b[sortField]))
+      : String(b[sortField]).localeCompare(String(a[sortField]));
   });
 
   // Calcular estadísticas
@@ -236,15 +256,49 @@ export const OrderManagement = ({
         <table className="w-full">
           <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Proveedor</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Estado</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Total</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Acciones</th>
+              <th className="px-6 py-3 text-left">
+                <button
+                  className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                  onClick={() => handleSort('id')}
+                >
+                  <span>ID</span>
+                  <ArrowUpDown className="h-4 w-4" />
+                </button>
+              </th>
+              <th className="px-6 py-3 text-left">
+                <button
+                  className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                  onClick={() => handleSort('proveedorId')}
+                >
+                  <span>Proveedor</span>
+                  <ArrowUpDown className="h-4 w-4" />
+                </button>
+              </th>
+              <th className="px-6 py-3 text-left">
+                <button
+                  className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                  onClick={() => handleSort('estado')}
+                >
+                  <span>Estado</span>
+                  <ArrowUpDown className="h-4 w-4" />
+                </button>
+              </th>
+              <th className="px-6 py-3 text-left">
+                <button
+                  className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                  onClick={() => handleSort('total')}
+                >
+                  <span>Total</span>
+                  <ArrowUpDown className="h-4 w-4" />
+                </button>
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-purple-100">
-            {orders.map((order) => (
+            {filteredOrders.map((order) => (
               <tr key={order.id} className="hover:bg-indigo-50/30 transition-colors duration-150">
                 <td className="px-6 py-4">
                   <div className="text-sm font-medium text-gray-900">#{order.id}</div>
