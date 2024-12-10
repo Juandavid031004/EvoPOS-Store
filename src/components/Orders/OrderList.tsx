@@ -1,5 +1,5 @@
-import React from 'react';
-import { Edit2, Trash2, Package } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit2, Trash2, Package, ArrowUpDown } from 'lucide-react';
 import { Order, Supplier, Sucursal } from '../../types';
 import { format } from 'date-fns';
 
@@ -12,6 +12,34 @@ interface OrderListProps {
 }
 
 export const OrderList = ({ orders, suppliers, sucursales, onEdit, onDelete }: OrderListProps) => {
+  const [sortField, setSortField] = useState<keyof Order>('fecha');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: keyof Order) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedOrders = [...orders].sort((a, b) => {
+    if (sortField === 'fecha') {
+      return sortDirection === 'asc'
+        ? new Date(a.fecha).getTime() - new Date(b.fecha).getTime()
+        : new Date(b.fecha).getTime() - new Date(a.fecha).getTime();
+    }
+    if (sortField === 'total') {
+      return sortDirection === 'asc'
+        ? a.total - b.total
+        : b.total - a.total;
+    }
+    return sortDirection === 'asc'
+      ? String(a[sortField]).localeCompare(String(b[sortField]))
+      : String(b[sortField]).localeCompare(String(a[sortField]));
+  });
+
   const getStatusStyle = (status: Order['estado']) => {
     const styles = {
       pendiente: 'bg-yellow-100 text-yellow-800',
@@ -25,17 +53,67 @@ export const OrderList = ({ orders, suppliers, sucursales, onEdit, onDelete }: O
     <table className="w-full min-w-[800px]">
       <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
         <tr>
-          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">ID</th>
-          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Proveedor</th>
-          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Sucursal</th>
-          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Fecha</th>
-          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Total</th>
-          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Estado</th>
-          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Acciones</th>
+          <th className="px-4 sm:px-6 py-3 text-left">
+            <button
+              className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+              onClick={() => handleSort('id')}
+            >
+              <span>ID</span>
+              <ArrowUpDown className="h-4 w-4" />
+            </button>
+          </th>
+          <th className="px-4 sm:px-6 py-3 text-left">
+            <button
+              className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+              onClick={() => handleSort('proveedorId')}
+            >
+              <span>Proveedor</span>
+              <ArrowUpDown className="h-4 w-4" />
+            </button>
+          </th>
+          <th className="px-4 sm:px-6 py-3 text-left">
+            <button
+              className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+              onClick={() => handleSort('sucursal')}
+            >
+              <span>Sucursal</span>
+              <ArrowUpDown className="h-4 w-4" />
+            </button>
+          </th>
+          <th className="px-4 sm:px-6 py-3 text-left">
+            <button
+              className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+              onClick={() => handleSort('fecha')}
+            >
+              <span>Fecha</span>
+              <ArrowUpDown className="h-4 w-4" />
+            </button>
+          </th>
+          <th className="px-4 sm:px-6 py-3 text-left">
+            <button
+              className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+              onClick={() => handleSort('total')}
+            >
+              <span>Total</span>
+              <ArrowUpDown className="h-4 w-4" />
+            </button>
+          </th>
+          <th className="px-4 sm:px-6 py-3 text-left">
+            <button
+              className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+              onClick={() => handleSort('estado')}
+            >
+              <span>Estado</span>
+              <ArrowUpDown className="h-4 w-4" />
+            </button>
+          </th>
+          <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+            Acciones
+          </th>
         </tr>
       </thead>
       <tbody className="divide-y divide-purple-100">
-        {orders.map((order) => {
+        {sortedOrders.map((order) => {
           const supplier = suppliers.find(s => s.id === order.proveedorId);
           const sucursal = sucursales.find(s => s.id === order.sucursal);
           
@@ -107,4 +185,4 @@ export const OrderList = ({ orders, suppliers, sucursales, onEdit, onDelete }: O
       </tbody>
     </table>
   );
-};
+}

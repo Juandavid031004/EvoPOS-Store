@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Search, Building2, Phone, Mail, Users } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Building2, Phone, Mail, Users, ArrowUpDown } from 'lucide-react';
 import { Supplier, User } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -31,6 +31,8 @@ export const SupplierManagement = ({
   const [showForm, setShowForm] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortField, setSortField] = useState<keyof Supplier>('nombre');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [formData, setFormData] = useState({
     nombre: '',
     ruc: '',
@@ -41,6 +43,15 @@ export const SupplierManagement = ({
     productos: [] as string[],
     activo: true
   });
+
+  const handleSort = (field: keyof Supplier) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +93,16 @@ export const SupplierManagement = ({
     supplier.ruc.includes(searchTerm) ||
     supplier.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const sortedSuppliers = [...filteredSuppliers].sort((a, b) => {
+    const compareValue = sortDirection === 'asc' ? 1 : -1;
+    if (typeof a[sortField] === 'boolean') {
+      return a[sortField] === b[sortField] ? 0 : a[sortField] ? -compareValue : compareValue;
+    }
+    return sortDirection === 'asc'
+      ? String(a[sortField]).localeCompare(String(b[sortField]))
+      : String(b[sortField]).localeCompare(String(a[sortField]));
+  });
 
   // Calcular estadísticas
   const totalProveedores = filteredSuppliers.length;
@@ -183,16 +204,58 @@ export const SupplierManagement = ({
           <table className="w-full min-w-[800px]">
             <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
               <tr>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Nombre</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">RUC</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Contacto</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Dirección</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Estado</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Acciones</th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('nombre')}
+                  >
+                    <span>Nombre</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('ruc')}
+                  >
+                    <span>RUC</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('contacto')}
+                  >
+                    <span>Contacto</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('direccion')}
+                  >
+                    <span>Dirección</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('activo')}
+                  >
+                    <span>Estado</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-purple-100">
-              {filteredSuppliers.map((supplier) => (
+              {sortedSuppliers.map((supplier) => (
                 <tr key={supplier.id} className="hover:bg-indigo-50/30 transition-colors duration-150">
                   <td className="px-4 sm:px-6 py-2 sm:py-4">
                     <div className="text-sm font-medium text-gray-900">{supplier.nombre}</div>
@@ -393,4 +456,4 @@ export const SupplierManagement = ({
       )}
     </div>
   );
-};
+}

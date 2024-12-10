@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Search, DollarSign, Calendar, Filter } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, DollarSign, Calendar, Filter, ArrowUpDown } from 'lucide-react';
 import { Gasto, TipoGasto, User, Sucursal, BusinessConfig } from '../../types';
 import { format, parse, isValid } from 'date-fns';
 import { generateExpensesReport } from '../../utils/documentGenerator';
@@ -50,6 +50,8 @@ export const ExpenseManagement = ({
   const [dateFilter, setDateFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState<TipoGasto | ''>('');
   const [sucursalFilter, setSucursalFilter] = useState('');
+  const [sortField, setSortField] = useState<keyof Gasto>('fecha');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const [formData, setFormData] = useState<Omit<Gasto, 'id'>>({
     descripcion: '',
@@ -81,6 +83,15 @@ export const ExpenseManagement = ({
     });
   };
 
+  const handleSort = (field: keyof Gasto) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
   const filteredExpenses = expenses.filter(expense => {
     const matchesSearch = expense.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
                        expense.responsable.toLowerCase().includes(searchTerm.toLowerCase());
@@ -92,9 +103,14 @@ export const ExpenseManagement = ({
     
     return matchesSearch && matchesDate && matchesType && matchesSucursal;
   }).sort((a, b) => {
-    const dateA = new Date(a.fecha);
-    const dateB = new Date(b.fecha);
-    return dateB.getTime() - dateA.getTime();
+    if (typeof a[sortField] === 'boolean') {
+      return sortDirection === 'asc' ? 
+        (a[sortField] === b[sortField] ? 0 : a[sortField] ? -1 : 1) :
+        (a[sortField] === b[sortField] ? 0 : a[sortField] ? 1 : -1);
+    }
+    return sortDirection === 'asc'
+      ? String(a[sortField]).localeCompare(String(b[sortField]))
+      : String(b[sortField]).localeCompare(String(a[sortField]));
   });
 
   const totalGastos = filteredExpenses.reduce((sum, expense) => sum + expense.monto, 0);
@@ -289,13 +305,63 @@ export const ExpenseManagement = ({
           <table className="w-full min-w-[800px]">
             <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
               <tr>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Fecha</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Descripción</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Tipo</th>
-                <th className="hidden md:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Sucursal</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Monto</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Estado</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Acciones</th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('fecha')}
+                  >
+                    <span>Fecha</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('descripcion')}
+                  >
+                    <span>Descripción</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('tipo')}
+                  >
+                    <span>Tipo</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="hidden md:table-cell px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('sucursal')}
+                  >
+                    <span>Sucursal</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('monto')}
+                  >
+                    <span>Monto</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('estado')}
+                  >
+                    <span>Estado</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-purple-100">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sale, Product, BusinessConfig, User, Sucursal } from '../types';
-import { Search, Calendar, Filter, FileText, Receipt, Trash2, Download, Building2 } from 'lucide-react';
+import { Search, Calendar, Filter, FileText, Receipt, Trash2, Download, Building2, ArrowUpDown } from 'lucide-react';
 import { generateDocument, generateSalesReport } from '../utils/documentGenerator';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -31,6 +31,17 @@ export const SalesList = ({
   const [endDate, setEndDate] = useState('');
   const [vendedorFilter, setVendedorFilter] = useState('');
   const [sucursalFilter, setSucursalFilter] = useState('');
+  const [sortField, setSortField] = useState<keyof Sale>('fecha');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: keyof Sale) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
 
   const handleDeleteSale = async (saleId: string) => {
     try {
@@ -110,20 +121,36 @@ export const SalesList = ({
     return user ? { id: user.id, nombre: user.nombre } : null;
   }).filter(Boolean);
 
-  const filteredSales = sales
-    .filter(sale => {
-      const matchesSearch = sale.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sale.id.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const saleDate = new Date(sale.fecha);
-      const matchesStartDate = !startDate || saleDate >= new Date(startDate);
-      const matchesEndDate = !endDate || saleDate <= new Date(endDate + 'T23:59:59');
-      const matchesVendedor = !vendedorFilter || sale.vendedor === vendedorFilter;
-      const matchesSucursal = !sucursalFilter || sale.sucursal === sucursalFilter;
-      
-      return matchesSearch && matchesStartDate && matchesEndDate && matchesVendedor && matchesSucursal;
-    })
-    .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+  // Filtrar ventas
+  const filteredSales = sales.filter(sale => {
+    const matchesSearch = sale.cliente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       sale.id.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const saleDate = new Date(sale.fecha);
+    const matchesStartDate = !startDate || saleDate >= new Date(startDate);
+    const matchesEndDate = !endDate || saleDate <= new Date(endDate + 'T23:59:59');
+    const matchesVendedor = !vendedorFilter || sale.vendedor === vendedorFilter;
+    const matchesSucursal = !sucursalFilter || sale.sucursal === sucursalFilter;
+    
+    return matchesSearch && matchesStartDate && matchesEndDate && matchesVendedor && matchesSucursal;
+  });
+
+  // Ordenar ventas
+  const sortedSales = [...filteredSales].sort((a, b) => {
+    if (sortField === 'fecha') {
+      return sortDirection === 'asc'
+        ? new Date(a.fecha).getTime() - new Date(b.fecha).getTime()
+        : new Date(b.fecha).getTime() - new Date(a.fecha).getTime();
+    }
+    if (sortField === 'total') {
+      return sortDirection === 'asc'
+        ? a.total - b.total
+        : b.total - a.total;
+    }
+    return sortDirection === 'asc'
+      ? String(a[sortField]).localeCompare(String(b[sortField]))
+      : String(b[sortField]).localeCompare(String(a[sortField]));
+  });
 
   // Calculate totals for filtered sales
   const totalVentas = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
@@ -234,18 +261,76 @@ export const SalesList = ({
           <table className="w-full min-w-[800px]">
             <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
               <tr>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">ID</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Cliente</th>
-                <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Vendedor</th>
-                <th className="hidden md:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Sucursal</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Fecha</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Total</th>
-                <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Método</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Acciones</th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('id')}
+                  >
+                    <span>ID</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('cliente')}
+                  >
+                    <span>Cliente</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('vendedor')}
+                  >
+                    <span>Vendedor</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="hidden md:table-cell px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('sucursal')}
+                  >
+                    <span>Sucursal</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('fecha')}
+                  >
+                    <span>Fecha</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('total')}
+                  >
+                    <span>Total</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('metodoPago')}
+                  >
+                    <span>Método</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-purple-100">
-              {filteredSales.map((sale) => {
+              {sortedSales.map((sale) => {
                 const sucursal = sucursales.find(s => s.id === sale.sucursal);
                 const vendedor = users.find(u => u.id === sale.vendedor);
                 
@@ -313,4 +398,4 @@ export const SalesList = ({
       </div>
     </div>
   );
-};
+}

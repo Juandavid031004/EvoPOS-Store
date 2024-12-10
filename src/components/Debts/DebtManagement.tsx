@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, DollarSign, Trash2, Filter, Calendar } from 'lucide-react';
+import { Search, DollarSign, Trash2, Filter, Calendar, ArrowUpDown } from 'lucide-react';
 import { Deuda, Cliente, Product } from '../../types';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -25,6 +25,17 @@ export const DebtManagement = ({
   const [paymentAmount, setPaymentAmount] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [sortField, setSortField] = useState<keyof Deuda>('fecha');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: keyof Deuda) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
 
   const handlePayment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,16 +61,31 @@ export const DebtManagement = ({
     }
   };
 
-  // Filtrar y ordenar deudas
-  const filteredDebts = debts
-    .filter(debt => {
-      const customer = customers.find(c => c.id === debt.clienteId);
-      const matchesSearch = customer?.nombre.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesDate = !dateFilter || format(new Date(debt.fecha), 'yyyy-MM').startsWith(dateFilter);
-      const matchesStatus = !statusFilter || debt.estado === statusFilter;
-      return matchesSearch && matchesDate && matchesStatus;
-    })
-    .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+  // Filtrar deudas
+  const filteredDebts = debts.filter(debt => {
+    const customer = customers.find(c => c.id === debt.clienteId);
+    const matchesSearch = customer?.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDate = !dateFilter || format(new Date(debt.fecha), 'yyyy-MM').startsWith(dateFilter);
+    const matchesStatus = !statusFilter || debt.estado === statusFilter;
+    return matchesSearch && matchesDate && matchesStatus;
+  });
+
+  // Ordenar deudas
+  const sortedDebts = [...filteredDebts].sort((a, b) => {
+    if (sortField === 'fecha') {
+      return sortDirection === 'asc'
+        ? new Date(a.fecha).getTime() - new Date(b.fecha).getTime()
+        : new Date(b.fecha).getTime() - new Date(a.fecha).getTime();
+    }
+    if (sortField === 'total') {
+      return sortDirection === 'asc'
+        ? a.total - b.total
+        : b.total - a.total;
+    }
+    return sortDirection === 'asc'
+      ? String(a[sortField]).localeCompare(String(b[sortField]))
+      : String(b[sortField]).localeCompare(String(a[sortField]));
+  });
 
   // Calcular estadísticas
   const totalDeudas = filteredDebts.reduce((sum, debt) => sum + debt.total, 0);
@@ -185,18 +211,58 @@ export const DebtManagement = ({
           <table className="w-full min-w-[800px]">
             <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
               <tr>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Cliente</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Productos</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Total</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Pagado</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Pendiente</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Fecha</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Estado</th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">Acciones</th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('clienteId')}
+                  >
+                    <span>Cliente</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                  Productos
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('total')}
+                  >
+                    <span>Total</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                  Pagado
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                  Pendiente
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('fecha')}
+                  >
+                    <span>Fecha</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left">
+                  <button
+                    className="flex items-center space-x-1 text-xs font-medium text-indigo-600 uppercase tracking-wider"
+                    onClick={() => handleSort('estado')}
+                  >
+                    <span>Estado</span>
+                    <ArrowUpDown className="h-4 w-4" />
+                  </button>
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-indigo-600 uppercase tracking-wider">
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-purple-100">
-              {filteredDebts.map((debt) => {
+              {sortedDebts.map((debt) => {
                 const customer = customers.find(c => c.id === debt.clienteId);
                 const totalPagado = debt.pagos.reduce((sum, pago) => sum + pago.monto, 0);
                 const pendiente = debt.total - totalPagado;
@@ -364,4 +430,4 @@ export const DebtManagement = ({
       )}
     </div>
   );
-};
+}
