@@ -15,9 +15,6 @@ class SupabaseService {
         autoRefreshToken: true,
         detectSessionInUrl: true,
         storage: window.localStorage
-      },
-      db: {
-        schema: 'public'
       }
     });
   }
