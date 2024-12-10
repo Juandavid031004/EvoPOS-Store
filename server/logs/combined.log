@@ -1,0 +1,24 @@
+{"level":"info","message":"Servidor ejecutándose en http://0.0.0.0:3000","timestamp":"2024-12-03T19:52:35.070Z"}
+{"level":"info","message":"Servidor ejecutándose en http://0.0.0.0:3000","timestamp":"2024-12-03T19:53:09.410Z"}
+{"level":"info","message":"Conexión exitosa con la base de datos SQLite","timestamp":"2024-12-03T19:53:09.427Z"}
+{"level":"info","message":"127.0.0.1 - - [03/Dec/2024:19:53:29 +0000] \"GET / HTTP/1.1\" 404 30 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0\"","timestamp":"2024-12-03T19:53:29.098Z"}
+{"level":"info","message":"127.0.0.1 - - [03/Dec/2024:19:53:37 +0000] \"GET / HTTP/1.1\" 404 30 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0\"","timestamp":"2024-12-03T19:53:37.971Z"}
+{"level":"info","message":"127.0.0.1 - - [03/Dec/2024:19:56:18 +0000] \"GET / HTTP/1.1\" 404 30 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0\"","timestamp":"2024-12-03T19:56:18.168Z"}
+{"level":"info","message":"127.0.0.1 - - [03/Dec/2024:19:57:56 +0000] \"GET /api/users/login HTTP/1.1\" 404 33 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0\"","timestamp":"2024-12-03T19:57:56.374Z"}
+{"level":"info","message":"127.0.0.1 - - [03/Dec/2024:19:58:20 +0000] \"GET /api/health HTTP/1.1\" 200 54 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0\"","timestamp":"2024-12-03T19:58:20.490Z"}
+{"level":"debug","message":"📂 Ruta de la base de datos: c:\\Users\\JUAN DAVID\\Downloads\\PRUEBA\\server\\data\\database.db","timestamp":"2024-12-03T20:17:42.564Z"}
+{"level":"info","message":"🔌 Iniciando conexión a la base de datos...","timestamp":"2024-12-03T20:17:42.601Z"}
+{"level":"debug","message":"⚙️ Configurando parámetros de la base de datos...","timestamp":"2024-12-03T20:17:42.603Z"}
+{"level":"debug","message":"✅ Parámetros de la base de datos configurados","timestamp":"2024-12-03T20:17:42.605Z"}
+{"level":"info","message":"Servidor ejecutándose en http://0.0.0.0:3000","timestamp":"2024-12-03T20:17:42.775Z"}
+{"level":"info","message":"✅ Conexión exitosa con la base de datos SQLite","timestamp":"2024-12-03T20:17:42.832Z"}
+{"level":"info","message":"127.0.0.1 - - [03/Dec/2024:20:18:49 +0000] \"GET / HTTP/1.1\" 404 30 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0\"","timestamp":"2024-12-03T20:18:49.365Z"}
+{"level":"info","message":"127.0.0.1 - - [03/Dec/2024:20:18:49 +0000] \"GET / HTTP/1.1\" 404 30 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0\"","timestamp":"2024-12-03T20:18:49.541Z"}
+{"level":"debug","message":"📂 Ruta de la base de datos: c:\\Users\\JUAN DAVID\\Downloads\\PRUEBA\\server\\data\\database.db","timestamp":"2024-12-03T20:19:29.626Z"}
+{"level":"info","message":"🔌 Iniciando conexión a la base de datos...","timestamp":"2024-12-03T20:19:29.644Z"}
+{"level":"debug","message":"⚙️ Configurando parámetros de la base de datos...","timestamp":"2024-12-03T20:19:29.646Z"}
+{"level":"debug","message":"✅ Parámetros de la base de datos configurados","timestamp":"2024-12-03T20:19:29.647Z"}
+{"level":"info","message":"Servidor ejecutándose en http://localhost:3000","timestamp":"2024-12-03T20:19:29.714Z"}
+{"level":"info","message":"✅ Conexión exitosa con la base de datos SQLite","timestamp":"2024-12-03T20:19:29.721Z"}
+{"level":"info","message":"127.0.0.1 - - [03/Dec/2024:20:19:55 +0000] \"GET / HTTP/1.1\" 404 30 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0\"","timestamp":"2024-12-03T20:19:55.029Z"}
+{"level":"info","message":"127.0.0.1 - - [03/Dec/2024:20:20:25 +0000] \"GET /api/health HTTP/1.1\" 200 54 \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0\"","timestamp":"2024-12-03T20:20:25.880Z"}

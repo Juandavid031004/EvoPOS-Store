@@ -1,0 +1,32 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache python3 make g++ sqlite wget
+
+# Create database directory and set permissions
+RUN mkdir -p /data/db && \
+    chown -R node:node /data
+
+# Copy configuration files
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy server code
+COPY server ./server
+
+# Switch to non-root user
+USER node
+
+# Environment variables
+ENV NODE_ENV=production
+ENV DB_PATH=/data/db/database.db
+
+# Health check endpoint
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --spider http://localhost:3000/api/health || exit 1
+
+EXPOSE 3000
+
+CMD ["npm", "start"]

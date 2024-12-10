@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Configuración responsive */
+@layer utilities {
+  .container-responsive {
+    @apply w-full px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+  }
+
+  .mobile-menu {
+    @apply fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 flex justify-around p-3 lg:hidden z-50;
+  }
+
+  .mobile-menu-item {
+    @apply flex flex-col items-center text-xs text-gray-600;
+  }
+
+  .mobile-menu-icon {
+    @apply h-6 w-6 mb-1;
+  }
+
+  /* Ajustes para pantalla extendida */
+  .extended-screen {
+    @apply min-h-screen flex flex-col;
+  }
+
+  .main-content {
+    @apply flex-grow p-4 lg:p-6;
+  }
+}
+
+/* Media queries específicos */
+@media (max-width: 640px) {
+  .hide-on-mobile {
+    display: none;
+  }
+
+  .table-cell-mobile {
+    @apply block w-full text-left;
+  }
+
+  .form-full-mobile {
+    @apply w-full;
+  }
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
