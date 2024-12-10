@@ -156,12 +156,22 @@ export const ExpenseManagement = ({
             switch (tipo) {
               case 'Servicios':
                 return 'from-blue-50 to-sky-50';
-              case 'Insumos':
-                return 'from-emerald-50 to-green-50';
+              case 'Salarios':
+                return 'from-green-50 to-emerald-50';
               case 'Mantenimiento':
                 return 'from-amber-50 to-yellow-50';
-              case 'Personal':
+              case 'Inventario':
                 return 'from-purple-50 to-violet-50';
+              case 'Marketing':
+                return 'from-pink-50 to-rose-50';
+              case 'Impuestos':
+                return 'from-red-50 to-rose-50';
+              case 'Alquiler':
+                return 'from-indigo-50 to-blue-50';
+              case 'Transporte':
+                return 'from-cyan-50 to-sky-50';
+              case 'Suministros':
+                return 'from-teal-50 to-emerald-50';
               default:
                 return 'from-gray-50 to-slate-50';
             }
@@ -170,13 +180,23 @@ export const ExpenseManagement = ({
           const getTextColor = (tipo: string) => {
             switch (tipo) {
               case 'Servicios':
-                return 'text-sky-600';
-              case 'Insumos':
-                return 'text-emerald-600';
+                return 'text-blue-600';
+              case 'Salarios':
+                return 'text-green-600';
               case 'Mantenimiento':
                 return 'text-amber-600';
-              case 'Personal':
+              case 'Inventario':
                 return 'text-purple-600';
+              case 'Marketing':
+                return 'text-pink-600';
+              case 'Impuestos':
+                return 'text-red-600';
+              case 'Alquiler':
+                return 'text-indigo-600';
+              case 'Transporte':
+                return 'text-cyan-600';
+              case 'Suministros':
+                return 'text-teal-600';
               default:
                 return 'text-gray-600';
             }
@@ -190,9 +210,14 @@ export const ExpenseManagement = ({
               </p>
               <div className={`h-1 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 bg-gradient-to-r ${
                 tipo === 'Servicios' ? 'from-blue-400 via-sky-500 to-blue-600' :
-                tipo === 'Insumos' ? 'from-emerald-400 via-green-500 to-emerald-600' :
+                tipo === 'Salarios' ? 'from-green-400 via-emerald-500 to-green-600' :
                 tipo === 'Mantenimiento' ? 'from-amber-400 via-yellow-500 to-amber-600' :
-                tipo === 'Personal' ? 'from-purple-400 via-violet-500 to-purple-600' :
+                tipo === 'Inventario' ? 'from-purple-400 via-violet-500 to-purple-600' :
+                tipo === 'Marketing' ? 'from-pink-400 via-rose-500 to-pink-600' :
+                tipo === 'Impuestos' ? 'from-red-400 via-rose-500 to-red-600' :
+                tipo === 'Alquiler' ? 'from-indigo-400 via-blue-500 to-indigo-600' :
+                tipo === 'Transporte' ? 'from-cyan-400 via-sky-500 to-cyan-600' :
+                tipo === 'Suministros' ? 'from-teal-400 via-emerald-500 to-teal-600' :
                 'from-gray-400 via-slate-500 to-gray-600'
               }`}></div>
             </div>
