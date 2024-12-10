@@ -144,26 +144,35 @@ export const ExpenseManagement = ({
       </div>
 
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-4xl font-bold text-red-600">
-            Gestión de Gastos
-          </h1>
-          <p className="text-gray-600 text-lg">
-            {expenses.length} gastos registrados
-          </p>
-        </div>
-        {/* Solo mostrar botón de nuevo gasto si tiene permiso */}
+      <div className="flex items-center space-x-4 mb-8">
+        <h1 className="text-4xl font-bold text-red-600">
+          Gestión de Gastos
+        </h1>
         {currentUser.permisos.includes('gestionar_gastos') && (
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center space-x-2 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl"
+            className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl"
           >
             <Plus className="h-5 w-5" />
             <span>Nuevo Gasto</span>
           </button>
         )}
+        <div className="bg-white/80 backdrop-blur-sm px-6 py-2 rounded-2xl shadow-lg ml-auto">
+          <p className="text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            {new Date().toLocaleDateString('es-ES', { 
+              weekday: 'long',
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric'
+            }).split(',').map(part => part.trim()).map(word => 
+              word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(', ')}
+          </p>
+        </div>
       </div>
+      <p className="text-gray-600 text-lg mb-6">
+        {expenses.length} gastos registrados
+      </p>
 
       {/* Resumen por Tipo */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
