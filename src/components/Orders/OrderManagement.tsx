@@ -159,26 +159,37 @@ export const OrderManagement = ({
       </div>
 
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-4xl font-bold text-black">
-            Gestión de Pedidos
-          </h1>
-          <p className="text-gray-600 text-lg">
-            {orders.length} pedidos encontrados
-          </p>
+      <div className="flex items-center mb-8">
+        <h1 className="text-4xl font-bold text-black">
+          Gestión de Pedidos
+        </h1>
+        <div className="flex items-center space-x-4 ml-auto">
+          {currentUser.permisos.includes('gestionar_pedidos') && (
+            <button
+              onClick={() => setShowForm(true)}
+              className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-gray-700 to-gray-900 text-white rounded-xl hover:from-gray-800 hover:to-black transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl"
+            >
+              <Plus className="h-5 w-5" />
+              <span>Nuevo Pedido</span>
+            </button>
+          )}
+          <div className="bg-white/80 backdrop-blur-sm px-6 py-2 rounded-2xl shadow-lg">
+            <p className="text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              {new Date().toLocaleDateString('es-ES', { 
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+              }).split(',').map(part => part.trim()).map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+              ).join(', ')}
+            </p>
+          </div>
         </div>
-        {/* Solo mostrar botón de nuevo pedido si tiene permiso de gestionar */}
-        {currentUser.permisos.includes('gestionar_pedidos') && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center space-x-2 px-6 py-2 bg-black hover:bg-gray-900 text-white rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl"
-          >
-            <Plus className="h-5 w-5" />
-            <span>Nuevo Pedido</span>
-          </button>
-        )}
       </div>
+      <p className="text-gray-600 text-lg mb-6">
+        {filteredOrders.length} pedidos encontrados
+      </p>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
