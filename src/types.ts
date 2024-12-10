@@ -229,7 +229,7 @@ export interface Gasto {
   createdAt?: Date;
 }
 
-export type TipoGasto = 'servicios' | 'salarios' | 'mantenimiento' | 'inventario' | 'marketing' | 'impuestos' | 'otros';
+export type TipoGasto = 'servicios' | 'salarios' | 'mantenimiento' | 'inventario' | 'marketing' | 'impuestos' | 'alquiler' | 'transporte' | 'suministros' | 'otros';
 
 export interface Warehouse {
   id: string;

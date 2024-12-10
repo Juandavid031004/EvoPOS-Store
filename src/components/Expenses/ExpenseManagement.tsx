@@ -21,6 +21,9 @@ const tiposGasto = [
   { value: 'inventario', label: 'Inventario' },
   { value: 'marketing', label: 'Marketing' },
   { value: 'impuestos', label: 'Impuestos' },
+  { value: 'alquiler', label: 'Alquiler' },
+  { value: 'transporte', label: 'Transporte' },
+  { value: 'suministros', label: 'Suministros' },
   { value: 'otros', label: 'Otros' }
 ];
 
