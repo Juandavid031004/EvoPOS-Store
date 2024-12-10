@@ -38,17 +38,26 @@ export type UserRole = 'admin' | 'vendedor' | 'almacen';
 
 export const DEFAULT_PERMISSIONS: Record<UserRole, Permission[]> = {
   admin: [
+    // Ventas
     'crear_venta', 'ver_ventas', 'anular_venta', 'aplicar_descuentos',
+    // Productos
     'gestionar_productos', 'ver_productos', 'modificar_precios',
     'gestionar_almacen', 'gestionar_devoluciones', 'ajustar_stock',
+    // Clientes
     'gestionar_clientes', 'ver_clientes', 'gestionar_deudas', 'gestionar_puntos',
+    // Reportes
     'ver_reportes', 'exportar_reportes', 'ver_dashboard', 'ver_estadisticas',
-    'gestionar_usuarios', 'gestionar_sucursales', 'gestionar_gastos',
-    'ver_configuracion', 'configurar_sistema', 'gestionar_pedidos',
-    'gestionar_proveedores',
-    'ver_proveedores', 'eliminar_proveedores',
-    'ver_pedidos', 'actualizar_pedidos', 'eliminar_pedidos',
-    'ver_gastos', 'eliminar_gastos', 'transferir_stock'
+    // Administración
+    'gestionar_usuarios', 'gestionar_sucursales',
+    'ver_configuracion', 'configurar_sistema',
+    // Gastos (Asegurando que estén todos los permisos)
+    'gestionar_gastos', 'ver_gastos', 'eliminar_gastos',
+    // Proveedores (Asegurando que estén todos los permisos)
+    'gestionar_proveedores', 'ver_proveedores', 'eliminar_proveedores',
+    // Pedidos (Asegurando que estén todos los permisos)
+    'gestionar_pedidos', 'ver_pedidos', 'actualizar_pedidos', 'eliminar_pedidos',
+    // Otros
+    'transferir_stock'
   ],
   vendedor: [
     'crear_venta', 'ver_ventas', 'aplicar_descuentos',
