@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabaseService } from '../services/supabaseClient';
+import { supabase } from '../services/initializeApp';
 import { useSupabaseData } from '../hooks/useSupabaseData';
 import { Loading } from '../components/Loading';
 import type { AuthState } from '../types';
@@ -24,8 +24,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initializeSupabase = async () => {
       try {
-        const client = await supabaseService.initialize();
-        const { data: { session } } = await client.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
 
         if (session?.user) {
           setAuthState({
@@ -40,7 +39,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
           });
         }
 
-        const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
           if (session) {
             setAuthState({
               user: session.user,
