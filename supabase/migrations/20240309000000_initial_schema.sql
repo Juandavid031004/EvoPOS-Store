@@ -1,218 +1,290 @@
--- Enable pgcrypto for UUID generation
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- Habilitar extensión UUID
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create tables
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT NOT NULL,
-  nombre TEXT NOT NULL,
-  username TEXT NOT NULL,
-  password TEXT NOT NULL,
-  rol TEXT NOT NULL,
-  sucursal_id UUID NOT NULL,
-  permisos TEXT[] NOT NULL,
-  activo BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
-  business_email TEXT NOT NULL,
-  UNIQUE(business_email, username),
-  UNIQUE(business_email, email)
+-- Crear tabla de registros de auditoría
+CREATE TABLE registro_auditoria (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    correo_negocio TEXT NOT NULL,
+    nombre_tabla TEXT NOT NULL,
+    registro_id UUID NOT NULL,
+    accion TEXT NOT NULL,
+    datos_anteriores JSONB,
+    datos_nuevos JSONB,
+    usuario_id UUID NOT NULL,
+    correo_usuario TEXT NOT NULL,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL
 );
 
-CREATE TABLE products (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  codigo TEXT NOT NULL,
-  nombre TEXT NOT NULL,
-  descripcion TEXT,
-  precio DECIMAL(10,2) NOT NULL,
-  costo DECIMAL(10,2) NOT NULL,
-  categoria TEXT,
-  sucursal_id UUID NOT NULL,
-  stock INTEGER DEFAULT 0,
-  stock_minimo INTEGER DEFAULT 5,
-  imagen TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
-  business_email TEXT NOT NULL,
-  UNIQUE(business_email, codigo)
+-- Crear tabla de usuarios
+CREATE TABLE usuarios (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    correo_negocio TEXT NOT NULL,
+    correo TEXT NOT NULL,
+    nombre TEXT NOT NULL,
+    nombre_usuario TEXT NOT NULL,
+    rol TEXT NOT NULL,
+    sucursal_id UUID,
+    permisos TEXT[] NOT NULL,
+    activo BOOLEAN DEFAULT true,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    creado_por UUID REFERENCES usuarios(id),
+    actualizado_por UUID REFERENCES usuarios(id),
+    UNIQUE(correo_negocio, nombre_usuario),
+    UNIQUE(correo_negocio, correo)
 );
 
-CREATE TABLE sales (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  cliente_id UUID,
-  vendedor_id UUID NOT NULL,
-  subtotal DECIMAL(10,2) NOT NULL,
-  descuento DECIMAL(10,2) DEFAULT 0,
-  total DECIMAL(10,2) NOT NULL,
-  metodo_pago TEXT NOT NULL,
-  sucursal_id UUID NOT NULL,
-  fecha TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
-  business_email TEXT NOT NULL
+-- Crear tabla de configuración del negocio
+CREATE TABLE configuracion_negocio (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    correo_negocio TEXT NOT NULL UNIQUE,
+    nombre_negocio TEXT NOT NULL,
+    url_logo TEXT,
+    moneda TEXT DEFAULT 'USD',
+    tasa_impuesto DECIMAL(5,2) DEFAULT 0,
+    tema TEXT DEFAULT 'light',
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    creado_por UUID REFERENCES usuarios(id),
+    actualizado_por UUID REFERENCES usuarios(id)
 );
 
-CREATE TABLE sale_items (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  sale_id UUID NOT NULL REFERENCES sales(id) ON DELETE CASCADE,
-  product_id UUID NOT NULL REFERENCES products(id),
-  cantidad INTEGER NOT NULL,
-  precio_unitario DECIMAL(10,2) NOT NULL,
-  subtotal DECIMAL(10,2) NOT NULL
+CREATE TABLE productos (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    correo_negocio TEXT NOT NULL,
+    nombre TEXT NOT NULL,
+    descripcion TEXT,
+    precio DECIMAL(10,2) NOT NULL,
+    costo DECIMAL(10,2) NOT NULL DEFAULT 0,
+    stock INTEGER NOT NULL DEFAULT 0,
+    stock_minimo INTEGER DEFAULT 5,
+    categoria TEXT,
+    codigo_barras TEXT,
+    sucursal_id UUID,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    creado_por UUID REFERENCES usuarios(id),
+    actualizado_por UUID REFERENCES usuarios(id)
 );
 
-CREATE TABLE customers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  nombre TEXT NOT NULL,
-  telefono TEXT,
-  email TEXT,
-  puntos INTEGER DEFAULT 0,
-  total_gastado DECIMAL(10,2) DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
-  business_email TEXT NOT NULL
+CREATE TABLE clientes (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    correo_negocio TEXT NOT NULL,
+    nombre TEXT NOT NULL,
+    correo TEXT,
+    telefono TEXT,
+    direccion TEXT,
+    puntos INTEGER DEFAULT 0,
+    total_gastado DECIMAL(10,2) DEFAULT 0,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    creado_por UUID REFERENCES usuarios(id),
+    actualizado_por UUID REFERENCES usuarios(id)
 );
 
-CREATE TABLE expenses (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  descripcion TEXT NOT NULL,
-  monto DECIMAL(10,2) NOT NULL,
-  tipo TEXT NOT NULL,
-  fecha TIMESTAMP WITH TIME ZONE NOT NULL,
-  comprobante TEXT,
-  sucursal_id UUID NOT NULL,
-  responsable TEXT NOT NULL,
-  estado TEXT NOT NULL,
-  observaciones TEXT,
-  business_email TEXT NOT NULL
+CREATE TABLE ventas (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    correo_negocio TEXT NOT NULL,
+    cliente_id UUID REFERENCES clientes(id),
+    vendedor_id UUID REFERENCES usuarios(id),
+    sucursal_id UUID NOT NULL,
+    subtotal DECIMAL(10,2) NOT NULL,
+    descuento DECIMAL(10,2) DEFAULT 0,
+    total DECIMAL(10,2) NOT NULL,
+    metodo_pago TEXT,
+    estado TEXT,
+    productos JSONB NOT NULL,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    creado_por UUID REFERENCES usuarios(id),
+    actualizado_por UUID REFERENCES usuarios(id)
 );
 
-CREATE TABLE suppliers (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  nombre TEXT NOT NULL,
-  ruc TEXT NOT NULL,
-  direccion TEXT NOT NULL,
-  telefono TEXT NOT NULL,
-  email TEXT NOT NULL,
-  contacto TEXT NOT NULL,
-  productos TEXT[] NOT NULL,
-  activo BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
-  business_email TEXT NOT NULL
+CREATE TABLE gastos (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    correo_negocio TEXT NOT NULL,
+    descripcion TEXT NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    categoria TEXT,
+    fecha DATE NOT NULL,
+    sucursal_id UUID NOT NULL,
+    url_comprobante TEXT,
+    responsable TEXT NOT NULL,
+    estado TEXT NOT NULL,
+    notas TEXT,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    creado_por UUID REFERENCES usuarios(id),
+    actualizado_por UUID REFERENCES usuarios(id)
 );
 
-CREATE TABLE orders (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  proveedor_id UUID NOT NULL REFERENCES suppliers(id),
-  fecha TIMESTAMP WITH TIME ZONE NOT NULL,
-  fecha_entrega TIMESTAMP WITH TIME ZONE,
-  estado TEXT NOT NULL,
-  total DECIMAL(10,2) NOT NULL,
-  observaciones TEXT,
-  sucursal_id UUID NOT NULL,
-  business_email TEXT NOT NULL
+CREATE TABLE proveedores (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    correo_negocio TEXT NOT NULL,
+    nombre TEXT NOT NULL,
+    ruc TEXT,
+    correo TEXT,
+    telefono TEXT,
+    direccion TEXT,
+    persona_contacto TEXT,
+    activo BOOLEAN DEFAULT true,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    creado_por UUID REFERENCES usuarios(id),
+    actualizado_por UUID REFERENCES usuarios(id)
 );
 
-CREATE TABLE order_items (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  product_id UUID NOT NULL REFERENCES products(id),
-  cantidad INTEGER NOT NULL,
-  precio_unitario DECIMAL(10,2) NOT NULL,
-  subtotal DECIMAL(10,2) NOT NULL
+CREATE TABLE pedidos (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    correo_negocio TEXT NOT NULL,
+    proveedor_id UUID REFERENCES proveedores(id),
+    sucursal_id UUID NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    estado TEXT,
+    fecha_entrega TIMESTAMP WITH TIME ZONE,
+    productos JSONB NOT NULL,
+    notas TEXT,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    creado_por UUID REFERENCES usuarios(id),
+    actualizado_por UUID REFERENCES usuarios(id)
 );
 
 CREATE TABLE sucursales (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  nombre TEXT NOT NULL,
-  direccion TEXT NOT NULL,
-  telefono TEXT NOT NULL,
-  email TEXT NOT NULL,
-  encargado TEXT NOT NULL,
-  activo BOOLEAN DEFAULT true,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
-  business_email TEXT NOT NULL
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    correo_negocio TEXT NOT NULL,
+    nombre TEXT NOT NULL,
+    direccion TEXT,
+    telefono TEXT,
+    correo TEXT,
+    encargado TEXT NOT NULL,
+    activo BOOLEAN DEFAULT true,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('UTC'::TEXT, NOW()) NOT NULL,
+    creado_por UUID REFERENCES usuarios(id),
+    actualizado_por UUID REFERENCES usuarios(id)
 );
 
--- Create indexes
-CREATE INDEX idx_users_business_email ON users(business_email);
-CREATE INDEX idx_products_business_email ON products(business_email);
-CREATE INDEX idx_sales_business_email ON sales(business_email);
-CREATE INDEX idx_customers_business_email ON customers(business_email);
-CREATE INDEX idx_expenses_business_email ON expenses(business_email);
-CREATE INDEX idx_suppliers_business_email ON suppliers(business_email);
-CREATE INDEX idx_orders_business_email ON orders(business_email);
-CREATE INDEX idx_sucursales_business_email ON sucursales(business_email);
-
--- Add RLS policies
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sales ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sale_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE suppliers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+-- Habilitar RLS
+ALTER TABLE registro_auditoria ENABLE ROW LEVEL SECURITY;
+ALTER TABLE usuarios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE configuracion_negocio ENABLE ROW LEVEL SECURITY;
+ALTER TABLE productos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE clientes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ventas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE gastos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE proveedores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE pedidos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sucursales ENABLE ROW LEVEL SECURITY;
 
--- Create policies for each table
+-- Crear políticas
+CREATE POLICY "Registros de auditoría visibles por correo de negocio" ON registro_auditoria
+    FOR ALL USING (correo_negocio = auth.jwt()->>'email');
 
--- Users table policy
-CREATE POLICY "Users belong to business" ON users
-  FOR ALL USING (business_email = auth.jwt()->>'business_email');
+CREATE POLICY "Usuarios visibles por correo de negocio" ON usuarios
+    FOR ALL USING (correo_negocio = auth.jwt()->>'email');
 
--- Products table policy
-CREATE POLICY "Products belong to business" ON products
-  FOR ALL USING (business_email = auth.jwt()->>'business_email');
+CREATE POLICY "Configuración visible por correo de negocio" ON configuracion_negocio
+    FOR ALL USING (correo_negocio = auth.jwt()->>'email');
 
--- Sales table policy
-CREATE POLICY "Sales belong to business" ON sales
-  FOR ALL USING (business_email = auth.jwt()->>'business_email');
+CREATE POLICY "Productos visibles por correo de negocio" ON productos
+    FOR ALL USING (correo_negocio = auth.jwt()->>'email');
 
--- Sale items table policy
-CREATE POLICY "Sale items belong to business sales" ON sale_items
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM sales 
-      WHERE sales.id = sale_items.sale_id 
-      AND sales.business_email = auth.jwt()->>'business_email'
+CREATE POLICY "Clientes visibles por correo de negocio" ON clientes
+    FOR ALL USING (correo_negocio = auth.jwt()->>'email');
+
+CREATE POLICY "Ventas visibles por correo de negocio" ON ventas
+    FOR ALL USING (correo_negocio = auth.jwt()->>'email');
+
+CREATE POLICY "Gastos visibles por correo de negocio" ON gastos
+    FOR ALL USING (correo_negocio = auth.jwt()->>'email');
+
+CREATE POLICY "Proveedores visibles por correo de negocio" ON proveedores
+    FOR ALL USING (correo_negocio = auth.jwt()->>'email');
+
+CREATE POLICY "Pedidos visibles por correo de negocio" ON pedidos
+    FOR ALL USING (correo_negocio = auth.jwt()->>'email');
+
+CREATE POLICY "Sucursales visibles por correo de negocio" ON sucursales
+    FOR ALL USING (correo_negocio = auth.jwt()->>'email');
+
+-- Crear índices
+CREATE INDEX idx_registro_auditoria_correo ON registro_auditoria(correo_negocio);
+CREATE INDEX idx_usuarios_correo ON usuarios(correo_negocio);
+CREATE INDEX idx_productos_correo ON productos(correo_negocio);
+CREATE INDEX idx_clientes_correo ON clientes(correo_negocio);
+CREATE INDEX idx_ventas_correo ON ventas(correo_negocio);
+CREATE INDEX idx_gastos_correo ON gastos(correo_negocio);
+CREATE INDEX idx_proveedores_correo ON proveedores(correo_negocio);
+CREATE INDEX idx_pedidos_correo ON pedidos(correo_negocio);
+CREATE INDEX idx_sucursales_correo ON sucursales(correo_negocio);
+
+-- Crear función para actualizar automáticamente el registro de auditoría
+CREATE OR REPLACE FUNCTION procesar_registro_auditoria()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO registro_auditoria (
+        correo_negocio,
+        nombre_tabla,
+        registro_id,
+        accion,
+        datos_anteriores,
+        datos_nuevos,
+        usuario_id,
+        correo_usuario
     )
-  );
+    VALUES (
+        CASE
+            WHEN TG_OP = 'DELETE' THEN OLD.correo_negocio
+            ELSE NEW.correo_negocio
+        END,
+        TG_TABLE_NAME,
+        CASE
+            WHEN TG_OP = 'DELETE' THEN OLD.id
+            ELSE NEW.id
+        END,
+        TG_OP,
+        CASE
+            WHEN TG_OP = 'DELETE' THEN to_jsonb(OLD)
+            WHEN TG_OP = 'UPDATE' THEN to_jsonb(OLD)
+            ELSE NULL
+        END,
+        CASE
+            WHEN TG_OP = 'DELETE' THEN NULL
+            ELSE to_jsonb(NEW)
+        END,
+        auth.uid()::UUID,
+        auth.jwt()->>'email'
+    );
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Customers table policy
-CREATE POLICY "Customers belong to business" ON customers
-  FOR ALL USING (business_email = auth.jwt()->>'business_email');
+-- Crear triggers para registro de auditoría
+CREATE TRIGGER auditoria_productos
+    AFTER INSERT OR UPDATE OR DELETE ON productos
+    FOR EACH ROW EXECUTE FUNCTION procesar_registro_auditoria();
 
--- Expenses table policy
-CREATE POLICY "Expenses belong to business" ON expenses
-  FOR ALL USING (business_email = auth.jwt()->>'business_email');
+CREATE TRIGGER auditoria_clientes
+    AFTER INSERT OR UPDATE OR DELETE ON clientes
+    FOR EACH ROW EXECUTE FUNCTION procesar_registro_auditoria();
 
--- Suppliers table policy
-CREATE POLICY "Suppliers belong to business" ON suppliers
-  FOR ALL USING (business_email = auth.jwt()->>'business_email');
+CREATE TRIGGER auditoria_ventas
+    AFTER INSERT OR UPDATE OR DELETE ON ventas
+    FOR EACH ROW EXECUTE FUNCTION procesar_registro_auditoria();
 
--- Orders table policy
-CREATE POLICY "Orders belong to business" ON orders
-  FOR ALL USING (business_email = auth.jwt()->>'business_email');
+CREATE TRIGGER auditoria_gastos
+    AFTER INSERT OR UPDATE OR DELETE ON gastos
+    FOR EACH ROW EXECUTE FUNCTION procesar_registro_auditoria();
 
--- Order items table policy
-CREATE POLICY "Order items belong to business orders" ON order_items
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM orders 
-      WHERE orders.id = order_items.order_id 
-      AND orders.business_email = auth.jwt()->>'business_email'
-    )
-  );
+CREATE TRIGGER auditoria_proveedores
+    AFTER INSERT OR UPDATE OR DELETE ON proveedores
+    FOR EACH ROW EXECUTE FUNCTION procesar_registro_auditoria();
 
--- Sucursales table policy
-CREATE POLICY "Sucursales belong to business" ON sucursales
-  FOR ALL USING (business_email = auth.jwt()->>'business_email');
+CREATE TRIGGER auditoria_pedidos
+    AFTER INSERT OR UPDATE OR DELETE ON pedidos
+    FOR EACH ROW EXECUTE FUNCTION procesar_registro_auditoria();
 
--- Enable RLS on all tables
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sales ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sale_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE suppliers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sucursales ENABLE ROW LEVEL SECURITY;
+CREATE TRIGGER auditoria_sucursales
+    AFTER INSERT OR UPDATE OR DELETE ON sucursales
+    FOR EACH ROW EXECUTE FUNCTION procesar_registro_auditoria();
