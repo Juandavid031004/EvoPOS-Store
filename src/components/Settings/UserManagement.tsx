@@ -299,9 +299,15 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                     {editingUser ? 'Nueva Contraseña (dejar vacío para mantener)' : 'Contraseña'}
                   </label>
                   <input
+                    id="password"
+                    name="password"
                     type="password"
-                    required={!editingUser}
-                    className="w-full p-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
+                    autoComplete="new-password"
+                    required
+                    className="appearance-none block w-full px-4 py-3 border-2 border-gray-200 rounded-xl shadow-sm placeholder-gray-400 
+                               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                               transition-all duration-300 ease-in-out
+                               hover:border-indigo-400"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     minLength={6}

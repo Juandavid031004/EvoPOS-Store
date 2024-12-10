@@ -297,6 +297,7 @@ export const Login = ({ onLogin }: LoginProps) => {
                     id="password"
                     name="password"
                     type="password"
+                    autoComplete="current-password"
                     required
                     className="appearance-none block w-full px-4 py-3 border-2 border-gray-200 rounded-xl shadow-sm placeholder-gray-400 
                              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
