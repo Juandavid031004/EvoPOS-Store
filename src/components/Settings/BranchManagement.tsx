@@ -154,8 +154,10 @@ export const BranchManagement = ({
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                  <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
                   <input
+                    id="nombre"
+                    name="nombre"
                     type="text"
                     required
                     className="w-full p-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
@@ -164,8 +166,10 @@ export const BranchManagement = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Encargado</label>
+                  <label htmlFor="encargado" className="block text-sm font-medium text-gray-700 mb-2">Encargado</label>
                   <input
+                    id="encargado"
+                    name="encargado"
                     type="text"
                     required
                     className="w-full p-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
@@ -176,8 +180,10 @@ export const BranchManagement = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
+                <label htmlFor="direccion" className="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
                 <input
+                  id="direccion"
+                  name="direccion"
                   type="text"
                   required
                   className="w-full p-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
@@ -188,8 +194,10 @@ export const BranchManagement = ({
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                  <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
                   <input
+                    id="telefono"
+                    name="telefono"
                     type="tel"
                     required
                     className="w-full p-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
@@ -198,8 +206,10 @@ export const BranchManagement = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                   <input
+                    id="email"
+                    name="email"
                     type="email"
                     required
                     className="w-full p-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"

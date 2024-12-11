@@ -288,3 +288,133 @@ CREATE TRIGGER auditoria_pedidos
 CREATE TRIGGER auditoria_sucursales
     AFTER INSERT OR UPDATE OR DELETE ON sucursales
     FOR EACH ROW EXECUTE FUNCTION procesar_registro_auditoria();
+
+-- Función para comprimir datos antiguos
+CREATE OR REPLACE FUNCTION compress_old_data()
+RETURNS void AS $$
+DECLARE
+    compression_date DATE;
+BEGIN
+    -- Definir fecha límite (30 días atrás)
+    compression_date := CURRENT_DATE - INTERVAL '30 days';
+
+    -- Comprimir registros de auditoría antiguos
+    UPDATE registro_auditoria 
+    SET datos_anteriores = compress_jsonb(datos_anteriores),
+        datos_nuevos = compress_jsonb(datos_nuevos)
+    WHERE fecha_creacion < compression_date
+    AND (datos_anteriores IS NOT NULL OR datos_nuevos IS NOT NULL);
+
+    -- Comprimir productos en ventas antiguas
+    UPDATE ventas 
+    SET productos = compress_jsonb(productos)
+    WHERE fecha_creacion < compression_date
+    AND productos IS NOT NULL;
+
+    -- Comprimir productos en pedidos antiguos
+    UPDATE pedidos 
+    SET productos = compress_jsonb(productos)
+    WHERE fecha_creacion < compression_date
+    AND productos IS NOT NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Función auxiliar para comprimir JSONB
+CREATE OR REPLACE FUNCTION compress_jsonb(data jsonb)
+RETURNS jsonb AS $$
+DECLARE
+    compressed jsonb;
+BEGIN
+    IF data IS NULL THEN
+        RETURN NULL;
+    END IF;
+
+    -- Eliminar espacios en blanco y caracteres innecesarios
+    compressed := jsonb_strip_nulls(data);
+    
+    RETURN compressed;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+-- Programar la compresión automática cada 24 horas
+SELECT cron.schedule(
+    'compress-old-data',
+    '0 0 * * *', -- Ejecutar a las 00:00 todos los días
+    'SELECT compress_old_data()'
+);
+
+-- Crear índices para optimizar consultas frecuentes
+CREATE INDEX IF NOT EXISTS idx_ventas_fecha ON ventas(fecha_creacion);
+CREATE INDEX IF NOT EXISTS idx_pedidos_fecha ON pedidos(fecha_creacion);
+CREATE INDEX IF NOT EXISTS idx_auditoria_fecha ON registro_auditoria(fecha_creacion);
+
+-- Función para limpiar datos muy antiguos (más de 1 año)
+CREATE OR REPLACE FUNCTION archive_very_old_data()
+RETURNS void AS $$
+DECLARE
+    archive_date DATE;
+BEGIN
+    -- Definir fecha límite (1 año atrás)
+    archive_date := CURRENT_DATE - INTERVAL '1 year';
+
+    -- Crear tabla de archivo si no existe
+    CREATE TABLE IF NOT EXISTS registro_auditoria_archivo (LIKE registro_auditoria);
+    CREATE TABLE IF NOT EXISTS ventas_archivo (LIKE ventas);
+    CREATE TABLE IF NOT EXISTS pedidos_archivo (LIKE pedidos);
+
+    -- Mover registros muy antiguos a tablas de archivo
+    WITH moved_rows AS (
+        DELETE FROM registro_auditoria 
+        WHERE fecha_creacion < archive_date
+        RETURNING *
+    )
+    INSERT INTO registro_auditoria_archivo 
+    SELECT * FROM moved_rows;
+
+    WITH moved_rows AS (
+        DELETE FROM ventas 
+        WHERE fecha_creacion < archive_date
+        RETURNING *
+    )
+    INSERT INTO ventas_archivo 
+    SELECT * FROM moved_rows;
+
+    WITH moved_rows AS (
+        DELETE FROM pedidos 
+        WHERE fecha_creacion < archive_date
+        RETURNING *
+    )
+    INSERT INTO pedidos_archivo 
+    SELECT * FROM moved_rows;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Programar el archivado automático cada semana
+SELECT cron.schedule(
+    'archive-very-old-data',
+    '0 0 * * 0', -- Ejecutar a las 00:00 cada domingo
+    'SELECT archive_very_old_data()'
+);
+
+-- Habilitar extensión pgcrypto para compresión
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Crear función para vaciar tablas de archivo si es necesario
+CREATE OR REPLACE FUNCTION clean_archive_tables()
+RETURNS void AS $$
+BEGIN
+    -- Solo limpiar si el espacio usado está cerca del límite
+    IF (SELECT pg_database_size(current_database()) > 1024 * 1024 * 1024 * 0.8) THEN -- 80% de 1GB
+        TRUNCATE TABLE registro_auditoria_archivo;
+        TRUNCATE TABLE ventas_archivo;
+        TRUNCATE TABLE pedidos_archivo;
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Programar limpieza de archivos cada mes
+SELECT cron.schedule(
+    'clean-archive-tables',
+    '0 0 1 * *', -- Ejecutar a las 00:00 el primer día de cada mes
+    'SELECT clean_archive_tables()'
+);

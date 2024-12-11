@@ -87,8 +87,10 @@ export const OrderForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
+        <label htmlFor="proveedorId" className="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
         <select
+          id="proveedorId"
+          name="proveedorId"
           required
           className="w-full p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
           value={formData.proveedorId}
@@ -110,35 +112,50 @@ export const OrderForm = ({
         </div>
         
         <div className="grid grid-cols-3 gap-4 mb-4">
-          <select
-            className="p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
-            value={selectedProduct}
-            onChange={(e) => setSelectedProduct(e.target.value)}
-          >
-            <option value="">Seleccionar producto</option>
-            {products.map((product) => (
-              <option key={product.id} value={product.id}>
-                {product.nombre} - Stock: {product.stock}
-              </option>
-            ))}
-          </select>
-          <input
-            type="number"
-            min="1"
-            placeholder="Cantidad"
-            className="p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
-            value={quantity}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-          />
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="Precio unitario"
-            className="p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
-          />
+          <div>
+            <label htmlFor="selectedProduct" className="block text-sm font-medium text-gray-700 mb-1">Producto</label>
+            <select
+              id="selectedProduct"
+              name="selectedProduct"
+              className="p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
+              value={selectedProduct}
+              onChange={(e) => setSelectedProduct(e.target.value)}
+            >
+              <option value="">Seleccionar producto</option>
+              {products.map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.nombre} - Stock: {product.stock}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
+            <input
+              id="quantity"
+              name="quantity"
+              type="number"
+              min="1"
+              placeholder="Cantidad"
+              className="p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
+              value={quantity}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+            />
+          </div>
+          <div>
+            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Precio unitario</label>
+            <input
+              id="price"
+              name="price"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Precio unitario"
+              className="p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
+              value={price}
+              onChange={(e) => setPrice(Number(e.target.value))}
+            />
+          </div>
         </div>
         
         <button

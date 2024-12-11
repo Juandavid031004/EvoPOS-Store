@@ -78,12 +78,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="codigo" className="block text-sm font-medium text-gray-700 mb-1">
                   Código *
                 </label>
                 <input
-                  type="text"
+                  id="codigo"
                   name="codigo"
+                  type="text"
                   value={formData.codigo}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
@@ -92,12 +93,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">
                   Nombre *
                 </label>
                 <input
-                  type="text"
+                  id="nombre"
                   name="nombre"
+                  type="text"
                   value={formData.nombre}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
@@ -106,10 +108,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-1">
                   Descripción
                 </label>
                 <textarea
+                  id="descripcion"
                   name="descripcion"
                   value={formData.descripcion}
                   onChange={handleChange}
@@ -119,12 +122,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
                   Categoría *
                 </label>
                 <input
-                  type="text"
+                  id="categoria"
                   name="categoria"
+                  type="text"
                   value={formData.categoria}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
@@ -133,10 +137,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="sucursal" className="block text-sm font-medium text-gray-700 mb-1">
                   Sucursal *
                 </label>
                 <select
+                  id="sucursal"
                   name="sucursal"
                   value={formData.sucursal}
                   onChange={handleChange}
@@ -153,12 +158,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="precio" className="block text-sm font-medium text-gray-700 mb-1">
                   Precio *
                 </label>
                 <input
-                  type="number"
+                  id="precio"
                   name="precio"
+                  type="number"
                   value={formData.precio}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
@@ -169,12 +175,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="costo" className="block text-sm font-medium text-gray-700 mb-1">
                   Costo
                 </label>
                 <input
-                  type="number"
+                  id="costo"
                   name="costo"
+                  type="number"
                   value={formData.costo}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
@@ -184,12 +191,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
                   Stock
                 </label>
                 <input
-                  type="number"
+                  id="stock"
                   name="stock"
+                  type="number"
                   value={formData.stock}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
@@ -198,12 +206,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="stockMinimo" className="block text-sm font-medium text-gray-700 mb-1">
                   Stock Mínimo
                 </label>
                 <input
-                  type="number"
+                  id="stockMinimo"
                   name="stockMinimo"
+                  type="number"
                   value={formData.stockMinimo}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"

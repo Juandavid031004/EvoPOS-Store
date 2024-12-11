@@ -360,8 +360,10 @@ export const SupplierManagement = ({
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre o Razón Social</label>
+                  <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre o Razón Social</label>
                   <input
+                    id="nombre"
+                    name="nombre"
                     type="text"
                     required
                     className="w-full p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
@@ -370,8 +372,10 @@ export const SupplierManagement = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">RUC</label>
+                  <label htmlFor="ruc" className="block text-sm font-medium text-gray-700 mb-1">RUC</label>
                   <input
+                    id="ruc"
+                    name="ruc"
                     type="text"
                     required
                     pattern="\d{11}"
@@ -384,8 +388,10 @@ export const SupplierManagement = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                <label htmlFor="direccion" className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
                 <input
+                  id="direccion"
+                  name="direccion"
                   type="text"
                   required
                   className="w-full p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"

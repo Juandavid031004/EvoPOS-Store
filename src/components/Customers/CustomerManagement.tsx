@@ -342,8 +342,10 @@ export const CustomerManagement = ({
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                  <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
                   <input
+                    id="nombre"
+                    name="nombre"
                     type="text"
                     required
                     className="w-full p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
@@ -353,8 +355,10 @@ export const CustomerManagement = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                  <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
                   <input
+                    id="telefono"
+                    name="telefono"
                     type="tel"
                     required
                     className="w-full p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
@@ -364,8 +368,10 @@ export const CustomerManagement = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
+                    id="email"
+                    name="email"
                     type="email"
                     required
                     className="w-full p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
@@ -417,8 +423,10 @@ export const CustomerManagement = ({
 
               <form onSubmit={handleRedeemPoints} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                  <label htmlFor="customer_select" className="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
                   <select
+                    id="customer_select"
+                    name="customer_select"
                     required
                     className="w-full p-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200"
                     value={redeemData.customerId}
@@ -434,8 +442,10 @@ export const CustomerManagement = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Puntos a Canjear</label>
+                  <label htmlFor="points_redeem" className="block text-sm font-medium text-gray-700 mb-1">Puntos a Canjear</label>
                   <input
+                    id="points_redeem"
+                    name="points_redeem"
                     type="number"
                     required
                     min="1"
