@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { authorizedEmails, defaultAdmin } from '../config/whitelist';
 import { DEFAULT_PERMISSIONS } from '../types';
 import { inicializarNegocio, obtenerDatosEmpresa } from '../services/firebase';
+import netlifyIdentity from 'netlify-identity-widget';
 
 interface LoginProps {
   onLogin: (email: string, username: string, password: string) => void;
@@ -66,7 +67,22 @@ export const Login = ({ onLogin }: LoginProps) => {
         username: username.toUpperCase()
       });
 
-      // Intentar iniciar sesión
+      // Iniciar sesión con Netlify Identity
+      await new Promise<void>((resolve, reject) => {
+        netlifyIdentity.open('login');
+        netlifyIdentity.on('login', user => {
+          netlifyIdentity.close();
+          if (user.email === emailLowerCase) {
+            resolve();
+          } else {
+            reject(new Error('Correo no coincide con el autorizado'));
+          }
+        });
+        netlifyIdentity.on('error', err => reject(err));
+        netlifyIdentity.on('close', () => reject(new Error('Login cancelado')));
+      });
+
+      // Si llegamos aquí, el login fue exitoso
       await onLogin(emailLimpio, username.toUpperCase(), password);
       
       console.log('✓ Login exitoso');
