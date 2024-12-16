@@ -17,7 +17,7 @@ import { ProductForm } from './components/ProductForm';
 import { OrderManagement } from './components/Orders/OrderManagement';
 import { SupplierManagement } from './components/Suppliers/SupplierManagement';
 import { SidebarProvider } from './context/SidebarContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { 
   Product, 
   Sale, 
@@ -33,8 +33,6 @@ import {
 } from './types';
 
 const AppContent: React.FC = () => {
-  const { user, login } = useAuth();
-
   // UI State
   const [activeView, setActiveView] = useState('dashboard');
   const [showProductForm, setShowProductForm] = useState(false);
@@ -62,93 +60,12 @@ const AppContent: React.FC = () => {
     stockMinimo: 5,
   });
 
-  // Load data on auth change
-  useEffect(() => {
-    if (user) {
-      const email = user.email;
-      
-      // Load users first
-      const storedUsers = JSON.parse(localStorage.getItem(`users_${email}`) || '[]');
-      setUsers(storedUsers);
-      
-      // Load business data
-      const storedData = localStorage.getItem(`businessData_${email}`);
-      if (storedData) {
-        const data = JSON.parse(storedData);
-        setProducts(data.products || []);
-        setSales(data.sales || []);
-        setReturns(data.returns || []);
-        setCustomers(data.customers || []);
-        setDebts(data.debts || []);
-        setExpenses(data.expenses || []);
-        setSucursales(data.sucursales || []);
-        setOrders(data.orders || []);
-        setSuppliers(data.suppliers || []);
-        setBusinessConfig(data.businessConfig || {
-          nombre: 'Mi Empresa',
-          razonSocial: 'Mi Empresa S.A.C.',
-          ruc: '',
-          direccion: '',
-          telefono: '',
-          correo: '',
-          sitioWeb: '',
-          logo: '',
-          stockMinimo: 5,
-        });
-      }
-    }
-  }, [user]);
-
-  // Save data when it changes
-  useEffect(() => {
-    if (user) {
-      const email = user.email;
-      
-      // Save users
-      localStorage.setItem(`users_${email}`, JSON.stringify(users));
-      
-      // Save business data
-      const dataToSave = {
-        products,
-        sales,
-        returns,
-        customers,
-        debts,
-        expenses,
-        users,
-        sucursales,
-        orders,
-        suppliers,
-        businessConfig
-      };
-      localStorage.setItem(`businessData_${email}`, JSON.stringify(dataToSave));
-    }
-  }, [
-    user,
-    products,
-    sales,
-    returns,
-    customers,
-    debts,
-    expenses,
-    users,
-    sucursales,
-    orders,
-    suppliers,
-    businessConfig
-  ]);
-
-  if (!user) {
-    return <Login onLogin={login} />;
-  }
-
   return (
     <SidebarProvider>
       <div className="flex h-screen bg-gray-100">
         <Sidebar 
           activeView={activeView}
           setActiveView={setActiveView}
-          user={user}
         />
         
         <MainContent>
@@ -184,7 +101,7 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <Toaster position="top-right" />
-      <AppContent />
+      <Login />
     </AuthProvider>
   );
 };
