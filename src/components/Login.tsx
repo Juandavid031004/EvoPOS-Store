@@ -20,44 +20,70 @@ export const Login = ({ onLogin }: LoginProps) => {
     setLoading(true);
     
     try {
-      console.log('Intentando login con:', {
-        email: email.toLowerCase(),
-        username,
-        authorizedEmails
-      });
+      const emailLowerCase = email.toLowerCase().trim();
+      console.log('=== Inicio de proceso de login ===');
+      console.log('Email ingresado:', emailLowerCase);
+      console.log('Lista de correos autorizados:', authorizedEmails);
 
       // Validar el correo electrónico
-      const emailLowerCase = email.toLowerCase();
+      if (!emailLowerCase) {
+        throw new Error('El correo electrónico es requerido');
+      }
+
       if (!authorizedEmails.includes(emailLowerCase)) {
-        console.log('Correo no autorizado:', emailLowerCase);
-        console.log('Lista de correos autorizados:', authorizedEmails);
+        console.error('Correo no autorizado. Detalles:', {
+          emailIngresado: emailLowerCase,
+          correosAutorizados: authorizedEmails,
+          coincide: authorizedEmails.includes(emailLowerCase)
+        });
         throw new Error('Correo no autorizado');
       }
 
+      console.log('✓ Correo autorizado');
+
       // Verificar si es la primera vez que inicia sesión
-      const emailLimpio = emailLowerCase.replace('@', '').replace('.', '');
-      console.log('Email limpio:', emailLimpio);
+      const emailLimpio = emailLowerCase.replace(/[@.]/g, '');
+      console.log('Email limpio para Firebase:', emailLimpio);
       
       const datosExistentes = await obtenerDatosEmpresa(emailLimpio);
-      console.log('Datos existentes:', datosExistentes);
+      console.log('Datos existentes en Firebase:', datosExistentes);
       
       if (!datosExistentes) {
-        // Es la primera vez, inicializar datos
-        console.log('Inicializando datos para:', emailLimpio);
+        console.log('Primera vez - Inicializando datos para:', emailLimpio);
         await inicializarNegocio(emailLimpio);
-        console.log('Datos iniciales creados');
+        console.log('✓ Datos iniciales creados exitosamente');
+      } else {
+        console.log('✓ Negocio ya inicializado');
       }
 
+      // Validar credenciales
+      if (!username || !password) {
+        throw new Error('Usuario y contraseña son requeridos');
+      }
+
+      console.log('Intentando login con credenciales:', {
+        email: emailLimpio,
+        username: username.toUpperCase()
+      });
+
       // Intentar iniciar sesión
-      await onLogin(emailLimpio, username, password);
+      await onLogin(emailLimpio, username.toUpperCase(), password);
       
+      console.log('✓ Login exitoso');
       toast.success('Acceso exitoso', {
         icon: '🔑',
         duration: 2000
       });
     } catch (error) {
-      console.error('Error en login:', error);
-      toast.error(error instanceof Error ? error.message : 'Credenciales inválidas', {
+      console.error('=== Error en proceso de login ===');
+      console.error('Detalles del error:', error);
+      
+      let mensajeError = 'Error al iniciar sesión';
+      if (error instanceof Error) {
+        mensajeError = error.message;
+      }
+      
+      toast.error(mensajeError, {
         icon: '🚫',
         duration: 3000
       });
