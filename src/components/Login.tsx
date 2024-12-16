@@ -20,17 +20,30 @@ export const Login = ({ onLogin }: LoginProps) => {
     setLoading(true);
     
     try {
+      console.log('Intentando login con:', {
+        email: email.toLowerCase(),
+        username,
+        authorizedEmails
+      });
+
       // Validar el correo electrónico
-      if (!authorizedEmails.includes(email.toLowerCase())) {
+      const emailLowerCase = email.toLowerCase();
+      if (!authorizedEmails.includes(emailLowerCase)) {
+        console.log('Correo no autorizado:', emailLowerCase);
+        console.log('Lista de correos autorizados:', authorizedEmails);
         throw new Error('Correo no autorizado');
       }
 
       // Verificar si es la primera vez que inicia sesión
-      const emailLimpio = email.toLowerCase().replace('@', '').replace('.', '');
+      const emailLimpio = emailLowerCase.replace('@', '').replace('.', '');
+      console.log('Email limpio:', emailLimpio);
+      
       const datosExistentes = await obtenerDatosEmpresa(emailLimpio);
+      console.log('Datos existentes:', datosExistentes);
       
       if (!datosExistentes) {
         // Es la primera vez, inicializar datos
+        console.log('Inicializando datos para:', emailLimpio);
         await inicializarNegocio(emailLimpio);
         console.log('Datos iniciales creados');
       }
@@ -44,7 +57,7 @@ export const Login = ({ onLogin }: LoginProps) => {
       });
     } catch (error) {
       console.error('Error en login:', error);
-      toast.error('Credenciales inválidas', {
+      toast.error(error instanceof Error ? error.message : 'Credenciales inválidas', {
         icon: '🚫',
         duration: 3000
       });
