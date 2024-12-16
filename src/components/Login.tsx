@@ -1,73 +1,21 @@
 import React, { useState } from 'react';
 import { Store, ShoppingCart, Users, BarChart2, Package, DollarSign, Settings, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { authorizedEmails, defaultAdmin } from '../config/whitelist';
-import { DEFAULT_PERMISSIONS } from '../types';
-import { inicializarNegocio, obtenerDatosEmpresa } from '../services/firebase';
+import { useAuth } from '../context/AuthContext';
 
-interface LoginProps {
-  onLogin: (email: string, username: string, password: string) => void;
-}
-
-export const Login = ({ onLogin }: LoginProps) => {
+export const Login = () => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      const emailLowerCase = email.toLowerCase().trim();
-      console.log('=== Inicio de proceso de login ===');
-      console.log('Email ingresado:', emailLowerCase);
-
-      // Validar el correo electrónico
-      if (!emailLowerCase) {
-        throw new Error('El correo electrónico es requerido');
-      }
-
-      if (!authorizedEmails.includes(emailLowerCase)) {
-        console.error('Correo no autorizado. Detalles:', {
-          emailIngresado: emailLowerCase,
-          correosAutorizados: authorizedEmails,
-          coincide: authorizedEmails.includes(emailLowerCase)
-        });
-        throw new Error('Correo no autorizado');
-      }
-
-      console.log('✓ Correo autorizado');
-
-      // Verificar credenciales básicas
-      if (username.toUpperCase() !== 'ADMIN' || password !== '123456') {
-        throw new Error('Credenciales inválidas');
-      }
-
-      // Verificar si es la primera vez que inicia sesión
-      const emailLimpio = emailLowerCase.replace(/[@.]/g, '');
-      console.log('Email limpio para Firebase:', emailLimpio);
-      
-      const datosExistentes = await obtenerDatosEmpresa(emailLimpio);
-      console.log('Datos existentes en Firebase:', datosExistentes);
-      
-      if (!datosExistentes) {
-        console.log('Primera vez - Inicializando datos para:', emailLimpio);
-        await inicializarNegocio(emailLimpio);
-        console.log('✓ Datos iniciales creados exitosamente');
-      } else {
-        console.log('✓ Negocio ya inicializado');
-      }
-
-      // Si llegamos aquí, todo está correcto
-      await onLogin(emailLimpio, username.toUpperCase(), password);
-      
-      console.log('✓ Login exitoso');
-      toast.success('Acceso exitoso', {
-        icon: '🔑',
-        duration: 2000
-      });
+      await login(email, username, password);
     } catch (error) {
       console.error('=== Error en proceso de login ===');
       console.error('Detalles del error:', error);
