@@ -4,7 +4,6 @@ import toast from 'react-hot-toast';
 import { authorizedEmails, defaultAdmin } from '../config/whitelist';
 import { DEFAULT_PERMISSIONS } from '../types';
 import { inicializarNegocio, obtenerDatosEmpresa } from '../services/firebase';
-import netlifyIdentity from 'netlify-identity-widget';
 
 interface LoginProps {
   onLogin: (email: string, username: string, password: string) => void;
@@ -24,7 +23,6 @@ export const Login = ({ onLogin }: LoginProps) => {
       const emailLowerCase = email.toLowerCase().trim();
       console.log('=== Inicio de proceso de login ===');
       console.log('Email ingresado:', emailLowerCase);
-      console.log('Lista de correos autorizados:', authorizedEmails);
 
       // Validar el correo electrónico
       if (!emailLowerCase) {
@@ -42,6 +40,11 @@ export const Login = ({ onLogin }: LoginProps) => {
 
       console.log('✓ Correo autorizado');
 
+      // Verificar credenciales básicas
+      if (username.toUpperCase() !== 'ADMIN' || password !== '123456') {
+        throw new Error('Credenciales inválidas');
+      }
+
       // Verificar si es la primera vez que inicia sesión
       const emailLimpio = emailLowerCase.replace(/[@.]/g, '');
       console.log('Email limpio para Firebase:', emailLimpio);
@@ -57,32 +60,7 @@ export const Login = ({ onLogin }: LoginProps) => {
         console.log('✓ Negocio ya inicializado');
       }
 
-      // Validar credenciales
-      if (!username || !password) {
-        throw new Error('Usuario y contraseña son requeridos');
-      }
-
-      console.log('Intentando login con credenciales:', {
-        email: emailLimpio,
-        username: username.toUpperCase()
-      });
-
-      // Iniciar sesión con Netlify Identity
-      await new Promise<void>((resolve, reject) => {
-        netlifyIdentity.open('login');
-        netlifyIdentity.on('login', user => {
-          netlifyIdentity.close();
-          if (user.email === emailLowerCase) {
-            resolve();
-          } else {
-            reject(new Error('Correo no coincide con el autorizado'));
-          }
-        });
-        netlifyIdentity.on('error', err => reject(err));
-        netlifyIdentity.on('close', () => reject(new Error('Login cancelado')));
-      });
-
-      // Si llegamos aquí, el login fue exitoso
+      // Si llegamos aquí, todo está correcto
       await onLogin(emailLimpio, username.toUpperCase(), password);
       
       console.log('✓ Login exitoso');
