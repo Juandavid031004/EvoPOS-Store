@@ -1,0 +1,36 @@
+{
+  "negocios": {
+    "evopos12gmail": {
+      "empresa": {
+        "nombre": "EvoPOS Store",
+        "razonSocial": "pendiente",
+        "ruc": "pendiente",
+        "direccion": "pendiente",
+        "telefono": "pendiente",
+        "correo": "evopos12gmail",
+        "sitioWeb": "pendiente",
+        "logo": "pendiente",
+        "stockMinimo": 5
+      },
+      "sucursales": {
+        "principal": {
+          "nombre": "Sucursal Principal",
+          "direccion": "pendiente",
+          "telefono": "pendiente",
+          "encargado": "Administrador",
+          "estado": "activo"
+        }
+      },
+      "usuarios": {
+        "admin": {
+          "nombre": "Administrador",
+          "username": "ADMIN",
+          "password": "123456",
+          "role": "admin",
+          "permisos": ["all"],
+          "estado": "activo"
+        }
+      }
+    }
+  }
+}

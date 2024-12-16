@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { Product, Sucursal } from '../types';
 import toast from 'react-hot-toast';
+import { guardarProducto, actualizarProducto } from '../services/firebase';
 
 interface ProductFormProps {
   product?: Product;
   onSubmit: (product: Omit<Product, 'id' | 'createdAt'>) => void;
   onClose: () => void;
   sucursales: Sucursal[];
+  currentEmail: string;
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   product,
   onSubmit,
   onClose,
-  sucursales
+  sucursales,
+  currentEmail
 }) => {
   const [formData, setFormData] = useState<Omit<Product, 'id' | 'createdAt'>>({
     codigo: product?.codigo || '',
@@ -43,21 +46,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     
     try {
       if (product) {
-        await onSubmit(formData);
+        await actualizarProducto(currentEmail, product.id, formData);
         toast.success('Producto actualizado', {
           icon: '✏️',
           duration: 2000
         });
       } else {
-        await onSubmit(formData);
+        await guardarProducto(currentEmail, formData);
         toast.success('Producto agregado', {
           icon: '✨',
           duration: 2000
         });
       }
       onClose();
+      onSubmit(formData);
     } catch (error) {
-      toast.error('Error al actualizar' || 'Error al crear', {
+      console.error('Error:', error);
+      toast.error('Error al guardar el producto', {
         icon: '❌',
         duration: 3000
       });

@@ -3,6 +3,7 @@ import { Store, ShoppingCart, Users, BarChart2, Package, DollarSign, Settings, S
 import toast from 'react-hot-toast';
 import { authorizedEmails, defaultAdmin } from '../config/whitelist';
 import { DEFAULT_PERMISSIONS } from '../types';
+import { inicializarNegocio, obtenerDatosEmpresa } from '../services/firebase';
 
 interface LoginProps {
   onLogin: (email: string, username: string, password: string) => void;
@@ -24,14 +25,25 @@ export const Login = ({ onLogin }: LoginProps) => {
         throw new Error('Correo no autorizado');
       }
 
+      // Verificar si es la primera vez que inicia sesión
+      const emailLimpio = email.toLowerCase().replace('@', '').replace('.', '');
+      const datosExistentes = await obtenerDatosEmpresa(emailLimpio);
+      
+      if (!datosExistentes) {
+        // Es la primera vez, inicializar datos
+        await inicializarNegocio(emailLimpio);
+        console.log('Datos iniciales creados');
+      }
+
       // Intentar iniciar sesión
-      await onLogin(email, username, password);
+      await onLogin(emailLimpio, username, password);
       
       toast.success('Acceso exitoso', {
         icon: '🔑',
         duration: 2000
       });
     } catch (error) {
+      console.error('Error en login:', error);
       toast.error('Credenciales inválidas', {
         icon: '🚫',
         duration: 3000
