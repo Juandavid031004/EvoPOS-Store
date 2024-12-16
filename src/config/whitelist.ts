@@ -1,8 +1,8 @@
 // Lista de correos autorizados para crear una cuenta (cada uno representa un negocio diferente)
 export const authorizedEmails = [
-  'EvoPOS12@Gmail.com',
+  'evopos12@gmail.com',
   'juandavid45678910@gmail.com',
-  'ElPive@gmail.com',
+  'elpive@gmail.com',
 ].map(email => email.toLowerCase());
 
 // Credenciales por defecto del administrador (igual para todos los negocios)
